@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep RL Milestones: From Games to Olympiad-Level Reasoning</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #141c36;
+      --text: #e8edff;
+      --muted: #a8b4e6;
+      --accent: #67e8f9;
+      --accent2: #a78bfa;
+      --good: #86efac;
+      --warn: #fcd34d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at 20% 0%, #1d2a57 0%, var(--bg) 45%);
+      color: var(--text);
+      overflow: hidden;
+    }
+    .deck {
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+    }
+    .slide {
+      display: none;
+      height: 100%;
+      width: 100%;
+      padding: 56px 72px 72px;
+      animation: fade 220ms ease-out;
+    }
+    .slide.active { display: block; }
+    @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    h1 { margin: 0 0 14px; font-size: clamp(2rem, 4vw, 3.4rem); line-height: 1.1; }
+    h2 { margin: 0 0 12px; font-size: clamp(1.7rem, 3vw, 2.7rem); }
+    h3 { margin: 0 0 8px; font-size: clamp(1.2rem, 2.1vw, 1.6rem); color: var(--accent); }
+    p, li { font-size: clamp(1rem, 1.45vw, 1.36rem); line-height: 1.45; color: var(--text); }
+    ul { margin-top: 10px; }
+    .muted { color: var(--muted); }
+    .pill {
+      display: inline-block;
+      border: 1px solid #44508b;
+      background: #1c2750;
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: .95rem;
+      margin-bottom: 12px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 14px;
+    }
+    .card {
+      background: linear-gradient(180deg, #18234a, #121a36);
+      border: 1px solid #2d3a74;
+      border-radius: 14px;
+      padding: 16px 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.24);
+    }
+    .timeline { margin-top: 14px; display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: start; }
+    .year { color: var(--accent); font-weight: 700; font-size: 1.1rem; }
+    .footer {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      padding: 10px 20px;
+      background: rgba(8,12,24,.75);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid #2b376d;
+      font-size: .95rem;
+      color: var(--muted);
+    }
+    .progress-wrap { flex: 1; margin: 0 16px; height: 8px; background: #242f62; border-radius: 999px; overflow: hidden; }
+    .progress { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .2s; }
+    .kbd {
+      border: 1px solid #4c5da9;
+      padding: 1px 7px;
+      border-radius: 6px;
+      color: var(--text);
+      background: #1b2550;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .big {
+      font-size: clamp(1.15rem, 1.85vw, 1.75rem);
+      max-width: 1000px;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 20px;
+      align-items: start;
+    }
+    .timebox {
+      background: #12203f;
+      border: 1px solid #2e4f88;
+      border-left: 5px solid var(--warn);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-top: 10px;
+    }
+    .highlight { color: var(--good); }
+    .center { display: grid; place-content: center; text-align: center; }
+  </style>
+</head>
+<body>
+<div class="deck">
+  <section class="slide active">
+    <div class="pill">DeepRL Seminar Deck · 60 min total</div>
+    <h1>Deep RL Milestones: From Superhuman Gameplay to Formal Reasoning</h1>
+    <p class="big">A 60-minute talk (including Q&A) grounded in the repository papers: <strong>AlphaGo</strong>, <strong>AlphaGo Zero</strong>, <strong>OpenAI Five</strong>, <strong>Quake III Arena Capture the Flag</strong>, and <strong>Olympiad-level formal mathematical reasoning</strong>.</p>
+    <div class="timebox"><strong>Timing:</strong> 50 min presentation + 10 min Q&A</div>
+  </section>
+
+  <section class="slide">
+    <h2>Agenda & Time Plan</h2>
+    <div class="grid">
+      <div class="card"><h3>1) Setup (5 min)</h3><p>Why these papers matter and a unifying lens for progress in Deep RL.</p></div>
+      <div class="card"><h3>2) Core milestones (30 min)</h3><p>AlphaGo, AlphaGo Zero, OpenAI Five, Quake III Arena CTF.</p></div>
+      <div class="card"><h3>3) Beyond games (10 min)</h3><p>IMO-level formal reasoning with RL and what changed.</p></div>
+      <div class="card"><h3>4) Synthesis + discussion (5 min)</h3><p>Cross-paper patterns, research opportunities, open bottlenecks.</p></div>
+    </div>
+    <div class="timebox"><strong>Reserved Q&A:</strong> final 10 min (separate slide prompts included).</div>
+  </section>
+
+  <section class="slide">
+    <h2>One Unifying Question</h2>
+    <p class="big">How do we scale learning systems from <strong>closed, perfect-information games</strong> to <strong>multi-agent, partially observed worlds</strong>, and eventually toward <strong>formal mathematical reasoning</strong>?</p>
+    <ul>
+      <li>State representation changes.</li>
+      <li>Search/planning budget changes.</li>
+      <li>Self-play curriculum changes.</li>
+      <li>Evaluation and generalization standards get stricter.</li>
+    </ul>
+  </section>
+
+  <section class="slide">
+    <h2>Timeline of the Papers</h2>
+    <div class="timeline"><div class="year">2016</div><div><strong>AlphaGo</strong> — policy/value nets + MCTS + human & self-play.</div></div>
+    <div class="timeline"><div class="year">2017</div><div><strong>AlphaGo Zero</strong> — tabula rasa self-play and unified network.</div></div>
+    <div class="timeline"><div class="year">2019</div><div><strong>OpenAI Five</strong> — Dota 2 at scale with massive self-play.</div></div>
+    <div class="timeline"><div class="year">2019</div><div><strong>Quake III CTF agents</strong> — population-based multi-agent strategy.</div></div>
+    <div class="timeline"><div class="year">2025</div><div><strong>IMO-level formal reasoning</strong> — RL for theorem proving.</div></div>
+  </section>
+
+  <section class="slide">
+    <h2>AlphaGo: Hybridizing Learning + Search</h2>
+    <ul>
+      <li>Combined supervised pretraining, RL fine-tuning, and MCTS-guided decision making.</li>
+      <li>Policy network narrowed search; value network reduced rollout variance.</li>
+      <li>Key insight: Deep nets are strongest when embedded inside structured planning.</li>
+    </ul>
+    <div class="timebox"><strong>Talk cue (6 min):</strong> Explain why pure search or pure policy alone underperformed.</div>
+  </section>
+
+  <section class="slide">
+    <h2>AlphaGo: Why It Was a Breakthrough</h2>
+    <div class="grid">
+      <div class="card"><h3>Algorithmic</h3><p>Neural priors made MCTS selective and practical in a huge branching space.</p></div>
+      <div class="card"><h3>Engineering</h3><p>Distributed training/inference pipelines for large-scale policy and value learning.</p></div>
+      <div class="card"><h3>Scientific</h3><p>Demonstrated that learned evaluation can outperform handcrafted heuristics.</p></div>
+      <div class="card"><h3>Cultural</h3><p>Shifted mainstream belief in what deep RL systems could achieve.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <h2>AlphaGo Zero: Simplicity Through Self-Play</h2>
+    <ul>
+      <li>Single network outputs both policy and value.</li>
+      <li>No human expert data; pure self-play from random initialization.</li>
+      <li>MCTS targets bootstrap stronger training data over time.</li>
+    </ul>
+    <p class="highlight">Core message: remove hand-designed scaffolding, increase learning loop purity.</p>
+    <div class="timebox"><strong>Talk cue (6 min):</strong> Contrast “human priors + RL” vs “tabula rasa + search-improved targets.”</div>
+  </section>
+
+  <section class="slide">
+    <h2>AlphaGo → AlphaGo Zero: Design Transition</h2>
+    <div class="two-col">
+      <div class="card">
+        <h3>Before</h3>
+        <ul>
+          <li>Separate policy/value pipelines</li>
+          <li>Human data bootstrapping</li>
+          <li>More complex training choreography</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>After</h3>
+        <ul>
+          <li>Unified architecture</li>
+          <li>Pure self-play curriculum</li>
+          <li>Cleaner objective + iteration loop</li>
+        </ul>
+      </div>
+    </div>
+    <p class="muted">This pattern reappears in later systems: simplification + scale + stronger environment feedback.</p>
+  </section>
+
+  <section class="slide">
+    <h2>OpenAI Five: Scaling to Dota 2</h2>
+    <ul>
+      <li>Partially observed, real-time, long-horizon, high-dimensional control.</li>
+      <li>Massive distributed self-play generated strategic diversity.</li>
+      <li>Team coordination emerged from shared reward structure and co-training.</li>
+    </ul>
+    <div class="timebox"><strong>Talk cue (8 min):</strong> Emphasize the jump from turn-based perfect information to real-time imperfect information.</div>
+  </section>
+
+  <section class="slide">
+    <h2>OpenAI Five: Key Lessons</h2>
+    <div class="grid">
+      <div class="card"><h3>Scale is a method</h3><p>Large-scale self-play changes the optimization landscape.</p></div>
+      <div class="card"><h3>Non-stationarity matters</h3><p>Opponent distribution drifts; training pipelines must stabilize learning.</p></div>
+      <div class="card"><h3>Evaluation must be robust</h3><p>Need repeated matches and adversarial testing, not one-off wins.</p></div>
+      <div class="card"><h3>Coordination is learnable</h3><p>Role specialization can emerge without explicit role labels.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <h2>Quake III Arena CTF: Multi-Agent Population Training</h2>
+    <ul>
+      <li>Agents learned in teams with mixed teammates/opponents across a population.</li>
+      <li>Environment complexity forced navigation, tactics, and implicit communication.</li>
+      <li>Generalization assessed across unseen maps and partner combinations.</li>
+    </ul>
+    <div class="timebox"><strong>Talk cue (8 min):</strong> Describe population-based training as a curriculum over social dynamics.</div>
+  </section>
+
+  <section class="slide">
+    <h2>From Dota to Quake: What Improved?</h2>
+    <div class="grid">
+      <div class="card"><h3>OpenAI Five</h3><p>Single ecosystem mastery under constrained hero/rule settings.</p></div>
+      <div class="card"><h3>Quake CTF</h3><p>Stronger emphasis on partner/opponent diversity and transfer.</p></div>
+      <div class="card"><h3>Shared lesson</h3><p>Population diversity is a first-class ingredient for robust behavior.</p></div>
+      <div class="card"><h3>Open problem</h3><p>Reliable out-of-distribution adaptation remains difficult.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <h2>IMO-Level Formal Reasoning with RL</h2>
+    <ul>
+      <li>Moves from game environments to formal proof spaces.</li>
+      <li>Rewards linked to proof progress and correctness in formal systems.</li>
+      <li>Demonstrates RL-style search/control ideas in symbolic mathematics.</li>
+    </ul>
+    <div class="timebox"><strong>Talk cue (10 min):</strong> Explain why theorem proving is a strong testbed for planning + verification.</div>
+  </section>
+
+  <section class="slide">
+    <h2>Cross-Paper Synthesis</h2>
+    <div class="grid">
+      <div class="card"><h3>Pattern 1</h3><p><strong>Self-play / self-improvement loops</strong> drive sustained capability growth.</p></div>
+      <div class="card"><h3>Pattern 2</h3><p><strong>Search + learned priors</strong> beats either component alone in hard domains.</p></div>
+      <div class="card"><h3>Pattern 3</h3><p><strong>Scale and systems engineering</strong> are core algorithmic enablers.</p></div>
+      <div class="card"><h3>Pattern 4</h3><p><strong>Generalization stress tests</strong> distinguish benchmark success from robust competence.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <h2>What This Means for Future Deep RL</h2>
+    <ul>
+      <li>Need better sample efficiency without losing the benefits of large-scale self-play.</li>
+      <li>Need principled diversity mechanisms for opponents, partners, and tasks.</li>
+      <li>Need stronger safety/interpretability in strategic multi-agent systems.</li>
+      <li>Need bridges between simulation success and real-world deployment constraints.</li>
+    </ul>
+  </section>
+
+  <section class="slide">
+    <h2>Speaker Notes: Practical 60-Min Delivery</h2>
+    <div class="grid">
+      <div class="card"><h3>0–5 min</h3><p>Motivation + unifying question + timeline.</p></div>
+      <div class="card"><h3>5–35 min</h3><p>Four game milestones in chronological order with transitions.</p></div>
+      <div class="card"><h3>35–45 min</h3><p>IMO reasoning paper and why it is a conceptual shift.</p></div>
+      <div class="card"><h3>45–50 min</h3><p>Synthesis + open problems + one-slide recap.</p></div>
+    </div>
+    <div class="timebox"><strong>50–60 min:</strong> Q&A (prompts on next slide).</div>
+  </section>
+
+  <section class="slide">
+    <h2>Q&A Prompts (10 min)</h2>
+    <ul>
+      <li>What aspects of self-play are most transferable beyond games?</li>
+      <li>How should we evaluate generalization in multi-agent RL credibly?</li>
+      <li>Can theorem-proving RL loops become useful for practical STEM workflows?</li>
+      <li>Where should we spend compute budget: model size, search, or environment diversity?</li>
+    </ul>
+  </section>
+
+  <section class="slide center">
+    <h1>Thank You</h1>
+    <p class="big">Appendix discussion: failure modes, compute trends, and experiment design choices.</p>
+    <p class="muted">Use <span class="kbd">←</span>/<span class="kbd">→</span> or <span class="kbd">Space</span> to navigate.</p>
+  </section>
+</div>
+
+<div class="footer">
+  <div id="counter">Slide 1 / 18</div>
+  <div class="progress-wrap"><div class="progress" id="progress"></div></div>
+  <div>Keys: <span class="kbd">←</span> <span class="kbd">→</span> <span class="kbd">Home</span> <span class="kbd">End</span></div>
+</div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  const counter = document.getElementById('counter');
+  const progress = document.getElementById('progress');
+  let idx = 0;
+
+  function render() {
+    slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+    counter.textContent = `Slide ${idx + 1} / ${slides.length}`;
+    progress.style.width = `${((idx + 1) / slides.length) * 100}%`;
+  }
+
+  function next() { idx = Math.min(slides.length - 1, idx + 1); render(); }
+  function prev() { idx = Math.max(0, idx - 1); render(); }
+
+  window.addEventListener('keydown', (e) => {
+    if (["ArrowRight", "PageDown", " "].includes(e.key)) { e.preventDefault(); next(); }
+    if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); prev(); }
+    if (e.key === 'Home') { idx = 0; render(); }
+    if (e.key === 'End') { idx = slides.length - 1; render(); }
+  });
+
+  window.addEventListener('click', (e) => {
+    if (e.clientX > window.innerWidth * 0.55) next(); else prev();
+  });
+
+  render();
+</script>
+</body>
+</html>
