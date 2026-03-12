@@ -36,6 +36,35 @@
 % Note: Connect to stochastic control: discrete-time, discounted infinite horizon setting.
 \end{frame}
 
+\begin{frame}{Reinforcement Learning as Stochastic Control}
+\begin{itemize}
+  \item MDP $\Leftrightarrow$ discrete-time stochastic control system
+  \item Value function $V^\pi$ $\Leftrightarrow$ cost-to-go under feedback law $\pi$
+  \item Bellman equation $\Leftrightarrow$ dynamic programming principle
+  \item Optimal policy $\pi^*(s)$ $\Leftrightarrow$ optimal feedback control
+\end{itemize}
+\[
+V^*(s)=\sup_a\,\mathbb{E}\!\left[r(s,a)+\gamma V^*(s')\mid s,a\right]
+\]
+% Note: Frame RL as approximate dynamic programming on controlled Markov chains.
+\end{frame}
+
+\begin{frame}{Continuous-Time View}
+\[
+dX_t=b(X_t,a_t)\,dt+\sigma(X_t)\,dW_t
+\]
+\[
+\sup_a\,\mathbb{E}\!\left[\int_0^\infty e^{-\rho t}r(X_t,a_t)\,dt\right]
+\]
+\[
+\rho V(x)=\sup_a\left\{r(x,a)+\mathcal L^aV(x)\right\}
+\]
+\begin{itemize}
+  \item Many RL methods are sampling-based approximations to DP/HJB solutions
+\end{itemize}
+% Note: Connect policy/value iteration to numerical PDE and stochastic approximation viewpoints.
+\end{frame}
+
 \begin{frame}{Bellman Expectation and Optimality Equations}
 \begin{itemize}
   \item $V^\pi(s)=\mathbb{E}_\pi\!\left[\sum_{t\ge 0}\gamma^t r_t\mid s_0=s\right]$
@@ -112,105 +141,141 @@
 % STEP 4 — Part II slides
 % =========================
 
-\begin{frame}{AlphaGo (Nature 2016): Problem and Algorithm}
+\begin{frame}{AlphaGo --- Algorithmic Core}
 \begin{itemize}
-  \item Setting: full-information board game Go, sparse terminal reward
-  \item RL stack: supervised policy pretraining + policy gradient + value learning
-  \item Search: Monte Carlo Tree Search with policy priors and value rollouts
-  \item Objective: improve move selection under extreme branching
-  \item Hybridized planning and learned evaluation
+  \item Setting: Go; perfect information, huge branching factor
+  \item RL core: policy gradient fine-tuning + value learning
+  \item Networks: policy CNN + value CNN on board tensors
+  \item Search: MCTS combines policy priors + rollout/value evaluation
+  \item Self-play used for policy/value refinement
 \end{itemize}
-% Note: Explain why pure value iteration on full game tree is impossible.
+% Note: Scaling axis here is search coupled with learned evaluation.
 \end{frame}
 
-\begin{frame}{AlphaGo: Architecture, Pipeline, Scale}
+\begin{frame}{AlphaGo --- Engineering and Scale}
 \begin{itemize}
-  \item Policy net proposes moves; value net predicts win probability
-  \item MCTS uses PUCT-like selection, expansion, backup
-  \item Training: expert games \rightarrow self-play refinement
-  \item Rollout policy speeds leaf evaluation during search
-  \item Engineering trick: asynchronous distributed self-play and training
+  \item Data: $\sim 30$M expert positions + large self-play corpus
+  \item Compute: distributed CPU rollouts + multi-GPU training
+  \item Match-time scale: thousands of MCTS simulations per move
+  \item Tricks: fast rollout policy, asynchronous self-play/training
+  \item Key lesson: search quality $\times$ learned priors beats raw policy inference
 \end{itemize}
-% Note: Stress reduction of effective branching factor via policy priors.
+% Note: Emphasize effective branching-factor reduction by policy/value guidance.
 \end{frame}
 
-\begin{frame}{AlphaGo Zero (Nature 2017)}
+\begin{frame}{AlphaGo Zero --- Algorithmic Core}
 \begin{itemize}
-  \item Removed human data; pure self-play from random initialization
-  \item Unified network outputs policy $p_\theta$ and value $v_\theta$
-  \item MCTS guided by network; visit counts define improved targets
-  \item Loss: $(z-v)^2-\pi^\top\log p + c\|\theta\|^2$
-  \item Iterative policy improvement loop yielded superhuman play
+  \item Setting: Go from scratch; no expert demonstrations
+  \item RL core: generalized policy iteration via self-play + MCTS
+  \item Network: single residual net outputs $(p_\theta,v_\theta)$
+  \item MCTS visit counts define improved policy targets
+  \item Closed loop: self-play $\rightarrow$ update $\rightarrow$ stronger self-play
 \end{itemize}
-% Note: Emphasize closed-loop bootstrapping and data freshness.
+% Note: Highlight pure self-play policy iteration viewpoint.
 \end{frame}
 
-\begin{frame}{OpenAI Five (2019)}
+\begin{frame}{AlphaGo Zero --- Engineering and Scale}
 \begin{itemize}
-  \item Setting: Dota 2, partial observability, long horizons, team coordination
-  \item Algorithm: PPO with recurrent policies and centralized infrastructure
-  \item Architecture: LSTM-based policy/value heads over engineered features
-  \item Pipeline: massive parallel rollouts, continual updates, self-play leagues
-  \item Tricks: reward shaping, curriculum, action masking, population diversity
+  \item Data: all training data generated online by self-play
+  \item Compute: TPU-based training + large parallel game generation
+  \item Timeline: superhuman level reached within days of training
+  \item Tricks: replay windowing, regularized loss, gating by match tests
+  \item Key lesson: self-play can be a fully autonomous data engine
 \end{itemize}
-% Note: Mention throughput and environment complexity as key constraints.
+% Note: Scaling axis is data freshness and iterative improvement, not labels.
 \end{frame}
 
-\begin{frame}{Quake III Arena MARL (Science 2019)}
+\begin{frame}{OpenAI Five --- Algorithmic Core}
 \begin{itemize}
-  \item Environment: capture-the-flag with mixed cooperative-competitive goals
-  \item Algorithmic core: population-based training with Q-learning variants
-  \item Agents train against diverse opponents and teammates
-  \item Emergence: communication conventions and coordinated tactics
-  \item Engineering: distributed simulation and adaptive matchmaking
+  \item Setting: Dota 2; partial observability, long horizon, 5v5 coordination
+  \item RL core: PPO with recurrent actor-critic policies
+  \item Architecture: LSTM policy/value with action masking
+  \item Training regime: self-play in an evolving opponent league
+  \item Objective shaping supports sparse delayed win signal
 \end{itemize}
-% Note: Stress non-stationarity mitigation via population diversity.
+% Note: Connect to stochastic control with partial observation and constraints.
 \end{frame}
 
-\begin{frame}{RL for Formal Mathematical Reasoning (Nature 2025)}
+\begin{frame}{OpenAI Five --- Engineering and Scale}
 \begin{itemize}
-  \item Problem: theorem proving as sequential decision process over proof states
-  \item Actions: apply tactics/rules to transform formal goals
-  \item Policy-value nets guide search over proof trees
-  \item RL signal from solved proofs, verifier feedback, curriculum tasks
-  \item Key idea: combine neural priors with symbolic validity checks
+  \item Throughput: up to $\sim 180$ years of simulation per day
+  \item Resources: very large distributed CPU+GPU cluster
+  \item Duration: months of continual training and league updates
+  \item Tricks: PPO stabilization, curriculum, reward shaping, policy lag control
+  \item Key lesson: simulation throughput is the dominant control knob
 \end{itemize}
-% Note: Draw analogy to game tree search with strict formal verifier.
+% Note: Scaling axis is distributed on-policy data generation at extreme rate.
 \end{frame}
 
-\begin{frame}{Material Snapshot: Deep RL Milestones I}
+\begin{frame}{Quake III Arena MARL --- Algorithmic Core}
+\begin{itemize}
+  \item Setting: capture-the-flag; mixed cooperation and competition
+  \item RL core: off-policy multi-agent RL with population-based training
+  \item Architecture: recurrent agents with shared backbone + role conditioning
+  \item Training uses teammate/opponent sampling across a population
+  \item Population diversity mitigates non-stationarity
+\end{itemize}
+% Note: Emphasize league/population design as algorithmic component.
+\end{frame}
+
+\begin{frame}{Quake III Arena MARL --- Engineering and Scale}
+\begin{itemize}
+  \item Scale: large distributed actor pool generating diverse trajectories
+  \item Opponents: continually refreshed league for robust policy improvement
+  \item Environment randomization broadens tactical coverage
+  \item Tricks: PBT hyperparameter mutation + matchmaking schedules
+  \item Key lesson: diversity of training interactions drives robustness
+\end{itemize}
+% Note: Scaling axis is population diversity, not only per-policy compute.
+\end{frame}
+
+\begin{frame}{RL for Formal Reasoning (AlphaProof) --- Algorithmic Core}
+\begin{itemize}
+  \item Setting: formal theorem proving as sequential decision process
+  \item RL core: policy/value-guided tree search over proof states
+  \item Architecture: neural proposer for tactics + value/priority estimator
+  \item Environment: proof assistant verifier gives exact validity feedback
+  \item Test-time search adapts computation per theorem difficulty
+\end{itemize}
+% Note: Frame as planner+learner loop with symbolic constraints.
+\end{frame}
+
+\begin{frame}{RL for Formal Reasoning (AlphaProof) --- Engineering and Scale}
+\begin{itemize}
+  \item Data: millions of synthetic/curated proof trajectories
+  \item Compute: large-scale distributed search + accelerator training
+  \item Runtime scale: many candidate proof branches explored per problem
+  \item Tricks: verifier-grounded rewards, curriculum, offline-to-online fine-tuning
+  \item Key lesson: search with verifier feedback enables reliable RL signals
+\end{itemize}
+% Note: Scaling axis is verifier-grounded search with adaptive test-time compute.
+\end{frame}
+
+\begin{frame}{Deep RL Milestones}
 \centering
-\begin{columns}[T,onlytextwidth]
-\column{0.49\textwidth}
-\includegraphics[width=\linewidth,page=1]{AlphaGo.pdf}\\[-1mm]
-{\scriptsize AlphaGo (Nature 2016)}
-
-\column{0.49\textwidth}
-\includegraphics[width=\linewidth,page=1]{AlphaGoZero.pdf}\\[-1mm]
-{\scriptsize AlphaGo Zero (Nature 2017)}
-\end{columns}
-% Note: Use these title-page snapshots to anchor chronology before technical pipeline details.
+\begin{tabular}{ll}
+\textbf{2013} & DQN \\
+\textbf{2016} & AlphaGo \\
+\textbf{2017} & AlphaGo Zero \\
+\textbf{2019} & OpenAI Five \\
+\textbf{2019} & Quake III Arena MARL \\
+\textbf{2025} & RL for formal mathematical reasoning
+\end{tabular}
+\begin{itemize}
+  \item Trend: increasing scale, self-play, search, and systems engineering
+\end{itemize}
+% Note: Use as chronology anchor before systems/engineering synthesis.
 \end{frame}
 
-\begin{frame}{Material Snapshot: Deep RL Milestones II}
-\centering
-\begin{columns}[T,onlytextwidth]
-\column{0.49\textwidth}
-\includegraphics[width=\linewidth,page=1]{OpenAIFive.pdf}\\[-1mm]
-{\scriptsize OpenAI Five (2019)}
-
-\column{0.49\textwidth}
-\includegraphics[width=\linewidth,page=1]{QuakeIIIArena.pdf}\\[-1mm]
-{\scriptsize Quake III Arena MARL (Science 2019)}
-\end{columns}
-% Note: Highlight transition from board games to large-scale partially observed MARL.
-\end{frame}
-
-\begin{frame}{Material Snapshot: RL for Mathematical Reasoning}
-\centering
-\includegraphics[width=0.74\linewidth,page=1]{IMO.pdf}\\[-1mm]
-{\scriptsize Olympiad-level formal reasoning with RL (Nature 2025 material)}
-% Note: Connect symbolic proof search and RL planning/search integration.
+\begin{frame}{Why Did Deep RL Accelerate After 2015?}
+\begin{itemize}
+  \item GPUs/TPUs enabled large-batch optimization and rapid iteration
+  \item Rich simulators supplied cheap, resettable, parallel experience
+  \item Deep networks learned reusable representations from raw observations
+  \item Self-play created endogenous curricula in competitive domains
+  \item Distributed training synchronized actors, learners, and evaluation leagues
+\end{itemize}
+% Note: This is the unifying mechanism behind post-2015 milestone systems.
 \end{frame}
 
 % =========================
@@ -219,81 +284,89 @@
 
 \begin{frame}{Diagram: RL Agent--Environment Loop}
 \centering
-\begin{tikzpicture}[node distance=2.8cm,>=Latex,thick]
-  \node[draw,rounded corners,minimum width=3cm,minimum height=1.2cm] (agent) {Agent $\pi_\theta$};
-  \node[draw,rounded corners,right=of agent,minimum width=3.4cm,minimum height=1.2cm] (env) {Environment $P,R$};
+\begin{tikzpicture}[>=Latex,thick,node distance=2.8cm]
+  \node[draw,rounded corners,minimum width=3.6cm,minimum height=1.25cm,align=center] (agent) {Agent\\Policy $\pi_\theta(a\mid s)$};
+  \node[draw,rounded corners,right=4.1cm of agent,minimum width=4.4cm,minimum height=1.35cm,align=center] (env) {Environment dynamics\\$s_{t+1}\sim P(\cdot\mid s_t,a_t),\ r_t=R(s_t,a_t)$};
 
-  \draw[->] (agent) -- node[above] {$a_t$} (env);
-  \draw[->] (env) to[bend left=20] node[below] {$s_{t+1},r_t$} (agent);
-  \draw[->,dashed] (agent) to[bend left=45] node[above] {update $\theta$ from data} (agent);
+  \draw[->] (agent) -- node[above] {$a_t$ (action)} (env);
+  \draw[->] (env) -- node[below] {$(s_{t+1},r_t)$ (transition, reward)} (agent);
+
+  \node[above=1.0cm of agent,align=center] (state) {$s_t$ (state)};
+  \draw[->] (state) -- (agent);
 \end{tikzpicture}
-% Note: Verbalize closed-loop control and online data generation.
+% Note: Explicitly separates control law, dynamics, transition kernel, and reward channel.
 \end{frame}
 
 \begin{frame}{Diagram: AlphaGo Training Pipeline}
 \centering
-\begin{tikzpicture}[node distance=1.8cm and 1.7cm,>=Latex,thick]
-  \node[draw,rounded corners] (selfplay) {Self-play games};
-  \node[draw,rounded corners,right=of selfplay] (mcts) {MCTS};
-  \node[draw,rounded corners,above=of mcts] (policy) {Policy net};
-  \node[draw,rounded corners,below=of mcts] (value) {Value net};
-  \node[draw,rounded corners,right=of mcts] (dataset) {Replay buffer};
-  \node[draw,rounded corners,right=of dataset] (train) {SGD updates};
+\begin{tikzpicture}[>=Latex,thick,node distance=1.55cm and 1.6cm]
+  \node[draw,rounded corners,minimum width=3.0cm,align=center] (expert) {Expert games};
+  \node[draw,rounded corners,right=of expert,minimum width=3.1cm,align=center] (sup) {Supervised policy\\training};
+  \node[draw,rounded corners,right=of sup,minimum width=2.7cm,align=center] (pol) {Policy net $p_\theta$};
 
-  \draw[->] (selfplay) -- (mcts);
-  \draw[->] (policy) -- (mcts);
-  \draw[->] (value) -- (mcts);
-  \draw[->] (mcts) -- (dataset);
-  \draw[->] (dataset) -- (train);
-  \draw[->] (train) to[bend left=20] (policy);
-  \draw[->] (train) to[bend right=20] (value);
+  \node[draw,rounded corners,below=of pol,minimum width=3.2cm,align=center] (selfplay) {Self-play games};
+  \node[draw,rounded corners,left=of selfplay,minimum width=3.0cm,align=center] (value) {Value net $v_\phi$\\training};
+  \node[draw,rounded corners,right=of selfplay,minimum width=3.0cm,align=center] (mcts) {MCTS at play time};
+
+  \draw[->] (expert) -- (sup);
+  \draw[->] (sup) -- (pol);
+  \draw[->] (pol) -- node[right] {priors} (selfplay);
+  \draw[->] (selfplay) -- node[above] {positions, outcomes} (value);
+  \draw[->] (value) -- node[above] {state values} (selfplay);
+
+  \draw[->] (pol) -- node[right] {policy prior} (mcts);
+  \draw[->] (value.east) to[bend left=20] node[below] {leaf eval} (mcts.south west);
+  \draw[->] (mcts.west) to[bend left=15] node[below] {improved move targets} (selfplay.east);
 \end{tikzpicture}
-% Note: Emphasize policy improvement from MCTS visit counts.
+% Note: Makes supervised bootstrap, self-play improvement, value learning, and inference-time MCTS explicit.
 \end{frame}
 
 \begin{frame}{Diagram: Large-Scale Distributed RL Pipeline}
 \centering
-\begin{tikzpicture}[node distance=1.8cm and 1.5cm,>=Latex,thick]
-  \node[draw,rounded corners] (actors) {Actors / Simulators ($N\gg1$)};
-  \node[draw,rounded corners,right=of actors] (queue) {Trajectory queue};
-  \node[draw,rounded corners,right=of queue] (learners) {Learners (GPU)};
-  \node[draw,rounded corners,below=of learners] (params) {Parameter server};
-  \node[draw,rounded corners,below=of queue] (eval) {Evaluation league};
+\begin{tikzpicture}[>=Latex,thick,node distance=1.65cm and 1.6cm]
+  \node[draw,rounded corners,minimum width=3.4cm,align=center] (actors) {Actors / simulators\\(parallel envs)};
+  \node[draw,rounded corners,right=of actors,minimum width=3.3cm,align=center] (queue) {Rollout buffer\\/ trajectory queue};
+  \node[draw,rounded corners,right=of queue,minimum width=3.2cm,align=center] (learners) {Learners\\optimizer GPUs};
+  \node[draw,rounded corners,below=of learners,minimum width=3.2cm,align=center] (ctrl) {Parameter server\\/ controller};
+  \node[draw,rounded corners,below=of queue,minimum width=3.3cm,align=center] (league) {Evaluation league\\opponent sampling};
 
   \draw[->] (actors) -- node[above] {rollouts} (queue);
-  \draw[->] (queue) -- node[above] {batches} (learners);
-  \draw[->] (learners) -- node[right] {new weights} (params);
-  \draw[->] (params) -| node[pos=0.25,below] {broadcast} (actors);
-  \draw[->] (params) -- (eval);
-  \draw[->] (eval) -- node[below] {opponent sampling} (actors);
+  \draw[->] (queue) -- node[above] {training batches} (learners);
+  \draw[->] (learners) -- node[right] {updated weights} (ctrl);
+  \draw[->] (ctrl.west) -| node[pos=0.25,below] {weight broadcast} (actors.south);
+
+  \draw[->] (ctrl) -- node[right] {candidate policies} (league);
+  \draw[->] (league.west) -- node[below] {opponents / curricula} (actors.south east);
+  \draw[->] (league.north) -- node[right] {eval metrics} (queue.south);
 \end{tikzpicture}
-% Note: Connect to OpenAI Five throughput, policy lag, and league training.
+% Note: Shows end-to-end dataflow, policy distribution, and league-driven opponent selection.
 \end{frame}
+
 
 % =========================
 % STEP 6 — Conclusion slides
 % =========================
 
-\begin{frame}{Engineering Lessons from Modern Deep RL}
+\begin{frame}{Engineering Lessons from Modern Reinforcement Learning}
 \begin{itemize}
-  \item Self-play generates adaptive curricula without manual labels
-  \item Distributed simulation is essential for data and exploration scale
-  \item Reward shaping and constraints determine learnability
-  \item Scaling models/data improves robustness, not just peak score
-  \item Search + learning hybrids outperform either component alone
+  \item Self-play provides an adaptive curriculum tied to policy strength
+  \item Search + learning hybrids improve decisions under limited horizon
+  \item Reward shaping and environment design determine signal quality
+  \item Distributed simulation is often the primary scaling bottleneck
+  \item Scaling data/compute is a systems co-design problem, not tuning
 \end{itemize}
-% Note: Mention these as reusable design patterns across domains.
+% Note: Emphasize reusable engineering principles behind major RL breakthroughs.
 \end{frame}
 
 \begin{frame}{Open Questions for Stochastic Control Researchers}
 \begin{itemize}
-  \item Continuous-time RL: principled links to HJB and BSDE methods
-  \item Sample efficiency: model-based priors and uncertainty quantification
-  \item Exploration in high dimensions with finite-time guarantees
-  \item Stability and convergence under function approximation
-  \item Unifying optimal control structure with large-scale deep learning
+  \item Continuous-time RL: consistent discretization limits and error bounds
+  \item Exploration in high dimensions with structure-aware guarantees
+  \item Sample efficiency via models, priors, and uncertainty quantification
+  \item Stability/convergence under nonlinear function approximation
+  \item Links to HJB, BSDE, mean-field control, and robust control
 \end{itemize}
-% Note: End by inviting theory-system co-design collaborations.
+% Note: Conclude that RL is a computational continuation of stochastic control.
 \end{frame}
 
 \end{document}
