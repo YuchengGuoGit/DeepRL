@@ -1,0 +1,299 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit}
+
+\title{Deep Reinforcement Learning: Foundations to Systems}
+\author{Academic Talk Draft}
+\date{}
+
+\begin{document}
+
+% =========================
+% STEP 3 — Part I slides
+% =========================
+
+\begin{frame}{Reinforcement Learning Problem Setting}
+\begin{itemize}
+  \item Agent observes $s_t$, chooses $a_t\sim\pi(a\mid s_t)$
+  \item Environment returns $r_t$, transitions to $s_{t+1}\sim P(\cdot\mid s_t,a_t)$
+  \item Trajectory: $\tau=(s_0,a_0,r_0,\dots)$
+  \item Return: $G_t=\sum_{k=0}^{\infty}\gamma^k r_{t+k}$
+  \item Objective: $J(\pi)=\mathbb{E}_{\tau\sim\pi}[G_0]$
+\end{itemize}
+% Note: Emphasize partial observability as extension to POMDP; keep MDP for notation.
+\end{frame}
+
+\begin{frame}{Markov Decision Processes (MDPs)}
+\begin{itemize}
+  \item MDP: $(\mathcal S,\mathcal A,P,R,\gamma)$
+  \item Markov property: $P(s_{t+1}\mid s_{0:t},a_{0:t})=P(s_{t+1}\mid s_t,a_t)$
+  \item Policy $\pi(a\mid s)$ induces a controlled Markov chain
+  \item Reward model: $R(s,a)=\mathbb{E}[r_t\mid s_t=s,a_t=a]$
+  \item Goal: find $\pi^*\in\arg\max_\pi J(\pi)$
+\end{itemize}
+% Note: Connect to stochastic control: discrete-time, discounted infinite horizon setting.
+\end{frame}
+
+\begin{frame}{Bellman Expectation and Optimality Equations}
+\begin{itemize}
+  \item $V^\pi(s)=\mathbb{E}_\pi\!\left[\sum_{t\ge 0}\gamma^t r_t\mid s_0=s\right]$
+  \item $Q^\pi(s,a)=\mathbb{E}_\pi\!\left[\sum_{t\ge 0}\gamma^t r_t\mid s_0=s,a_0=a\right]$
+  \item Bellman expectation: $V^\pi(s)=\mathbb{E}[r+\gamma V^\pi(s')\mid s,\pi]$
+  \item Bellman optimality: $V^*(s)=\max_a\mathbb{E}[r+\gamma V^*(s')\mid s,a]$
+  \item $Q^*(s,a)=\mathbb{E}[r+\gamma\max_{a'}Q^*(s',a')\mid s,a]$
+\end{itemize}
+% Note: Mention contraction mapping under sup norm when gamma<1.
+\end{frame}
+
+\begin{frame}{Dynamic Programming Interpretation}
+\begin{itemize}
+  \item Policy evaluation: solve $V^\pi=T^\pi V^\pi$
+  \item Policy improvement: $\pi'(s)\in\arg\max_a Q^\pi(s,a)$
+  \item Policy iteration alternates evaluation and improvement
+  \item Value iteration: $V_{k+1}=TV_k$
+  \item Approximate DP replaces exact expectations by samples
+\end{itemize}
+% Note: Stress approximation error + sampling error decomposition.
+\end{frame}
+
+\begin{frame}{Q-Learning}
+\begin{itemize}
+  \item Off-policy TD control with bootstrapping
+  \item Update:
+  \[
+  Q(s,a)\leftarrow Q(s,a)+\alpha\big[r+\gamma\max_{a'}Q(s',a')-Q(s,a)\big]
+  \]
+  \item Converges tabularly under GLIE and Robbins--Monro steps
+  \item Uses replayed transitions in deep variants (DQN)
+  \item Strength: simple, model-free, greedy improvement
+\end{itemize}
+% Note: Clarify maximization bias and Double Q-learning fix.
+\end{frame}
+
+\begin{frame}{Policy Gradient Theorem}
+\begin{itemize}
+  \item Parameterize policy: $\pi_\theta(a\mid s)$
+  \item Performance objective: $J(\theta)=\mathbb{E}_{\tau\sim\pi_\theta}[G_0]$
+  \item Theorem:
+  \[
+  \nabla_\theta J(\theta)=\mathbb{E}\big[\nabla_\theta\log\pi_\theta(a\mid s)\,Q^{\pi}(s,a)\big]
+  \]
+  \item Baseline $b(s)$ keeps unbiasedness, reduces variance
+  \item REINFORCE uses Monte Carlo return estimators
+\end{itemize}
+% Note: Highlight score-function estimator and variance challenge.
+\end{frame}
+
+\begin{frame}{Actor--Critic Methods}
+\begin{itemize}
+  \item Actor updates policy; critic estimates $V^\pi$ or $Q^\pi$
+  \item TD error: $\delta_t=r_t+\gamma V_\phi(s_{t+1})-V_\phi(s_t)$
+  \item Actor step: $\theta\leftarrow\theta+\alpha_\theta\nabla_\theta\log\pi_\theta(a_t\mid s_t)\,\hat A_t$
+  \item Critic step: minimize $\delta_t^2$ (or multi-step targets)
+  \item Practical core: A2C/A3C, PPO, IMPALA
+\end{itemize}
+% Note: Emphasize bias-variance trade-off via bootstrapped advantage estimates.
+\end{frame}
+
+\begin{frame}{Deep Neural Function Approximation}
+\begin{itemize}
+  \item Replace tables by networks: $V_\phi(s), Q_\phi(s,a), \pi_\theta(a\mid s)$
+  \item Enables high-dimensional observations (pixels, text, game states)
+  \item Stabilization: target networks, replay buffers, normalization
+  \item Representation learning couples control and feature extraction
+  \item Risk: deadly triad (off-policy + bootstrap + approximation)
+\end{itemize}
+% Note: Bridge to Part II: engineering mitigations made this reliable at scale.
+\end{frame}
+
+% =========================
+% STEP 4 — Part II slides
+% =========================
+
+\begin{frame}{AlphaGo (Nature 2016): Problem and Algorithm}
+\begin{itemize}
+  \item Setting: full-information board game Go, sparse terminal reward
+  \item RL stack: supervised policy pretraining + policy gradient + value learning
+  \item Search: Monte Carlo Tree Search with policy priors and value rollouts
+  \item Objective: improve move selection under extreme branching
+  \item Hybridized planning and learned evaluation
+\end{itemize}
+% Note: Explain why pure value iteration on full game tree is impossible.
+\end{frame}
+
+\begin{frame}{AlphaGo: Architecture, Pipeline, Scale}
+\begin{itemize}
+  \item Policy net proposes moves; value net predicts win probability
+  \item MCTS uses PUCT-like selection, expansion, backup
+  \item Training: expert games \rightarrow self-play refinement
+  \item Rollout policy speeds leaf evaluation during search
+  \item Engineering trick: asynchronous distributed self-play and training
+\end{itemize}
+% Note: Stress reduction of effective branching factor via policy priors.
+\end{frame}
+
+\begin{frame}{AlphaGo Zero (Nature 2017)}
+\begin{itemize}
+  \item Removed human data; pure self-play from random initialization
+  \item Unified network outputs policy $p_\theta$ and value $v_\theta$
+  \item MCTS guided by network; visit counts define improved targets
+  \item Loss: $(z-v)^2-\pi^\top\log p + c\|\theta\|^2$
+  \item Iterative policy improvement loop yielded superhuman play
+\end{itemize}
+% Note: Emphasize closed-loop bootstrapping and data freshness.
+\end{frame}
+
+\begin{frame}{OpenAI Five (2019)}
+\begin{itemize}
+  \item Setting: Dota 2, partial observability, long horizons, team coordination
+  \item Algorithm: PPO with recurrent policies and centralized infrastructure
+  \item Architecture: LSTM-based policy/value heads over engineered features
+  \item Pipeline: massive parallel rollouts, continual updates, self-play leagues
+  \item Tricks: reward shaping, curriculum, action masking, population diversity
+\end{itemize}
+% Note: Mention throughput and environment complexity as key constraints.
+\end{frame}
+
+\begin{frame}{Quake III Arena MARL (Science 2019)}
+\begin{itemize}
+  \item Environment: capture-the-flag with mixed cooperative-competitive goals
+  \item Algorithmic core: population-based training with Q-learning variants
+  \item Agents train against diverse opponents and teammates
+  \item Emergence: communication conventions and coordinated tactics
+  \item Engineering: distributed simulation and adaptive matchmaking
+\end{itemize}
+% Note: Stress non-stationarity mitigation via population diversity.
+\end{frame}
+
+\begin{frame}{RL for Formal Mathematical Reasoning (Nature 2025)}
+\begin{itemize}
+  \item Problem: theorem proving as sequential decision process over proof states
+  \item Actions: apply tactics/rules to transform formal goals
+  \item Policy-value nets guide search over proof trees
+  \item RL signal from solved proofs, verifier feedback, curriculum tasks
+  \item Key idea: combine neural priors with symbolic validity checks
+\end{itemize}
+% Note: Draw analogy to game tree search with strict formal verifier.
+\end{frame}
+
+\begin{frame}{Material Snapshot: Deep RL Milestones I}
+\centering
+\begin{columns}[T,onlytextwidth]
+\column{0.49\textwidth}
+\includegraphics[width=\linewidth,page=1]{AlphaGo.pdf}\\[-1mm]
+{\scriptsize AlphaGo (Nature 2016)}
+
+\column{0.49\textwidth}
+\includegraphics[width=\linewidth,page=1]{AlphaGoZero.pdf}\\[-1mm]
+{\scriptsize AlphaGo Zero (Nature 2017)}
+\end{columns}
+% Note: Use these title-page snapshots to anchor chronology before technical pipeline details.
+\end{frame}
+
+\begin{frame}{Material Snapshot: Deep RL Milestones II}
+\centering
+\begin{columns}[T,onlytextwidth]
+\column{0.49\textwidth}
+\includegraphics[width=\linewidth,page=1]{OpenAIFive.pdf}\\[-1mm]
+{\scriptsize OpenAI Five (2019)}
+
+\column{0.49\textwidth}
+\includegraphics[width=\linewidth,page=1]{QuakeIIIArena.pdf}\\[-1mm]
+{\scriptsize Quake III Arena MARL (Science 2019)}
+\end{columns}
+% Note: Highlight transition from board games to large-scale partially observed MARL.
+\end{frame}
+
+\begin{frame}{Material Snapshot: RL for Mathematical Reasoning}
+\centering
+\includegraphics[width=0.74\linewidth,page=1]{IMO.pdf}\\[-1mm]
+{\scriptsize Olympiad-level formal reasoning with RL (Nature 2025 material)}
+% Note: Connect symbolic proof search and RL planning/search integration.
+\end{frame}
+
+% =========================
+% STEP 5 — Diagram slides (TikZ)
+% =========================
+
+\begin{frame}{Diagram: RL Agent--Environment Loop}
+\centering
+\begin{tikzpicture}[node distance=2.8cm,>=Latex,thick]
+  \node[draw,rounded corners,minimum width=3cm,minimum height=1.2cm] (agent) {Agent $\pi_\theta$};
+  \node[draw,rounded corners,right=of agent,minimum width=3.4cm,minimum height=1.2cm] (env) {Environment $P,R$};
+
+  \draw[->] (agent) -- node[above] {$a_t$} (env);
+  \draw[->] (env) to[bend left=20] node[below] {$s_{t+1},r_t$} (agent);
+  \draw[->,dashed] (agent) to[bend left=45] node[above] {update $\theta$ from data} (agent);
+\end{tikzpicture}
+% Note: Verbalize closed-loop control and online data generation.
+\end{frame}
+
+\begin{frame}{Diagram: AlphaGo Training Pipeline}
+\centering
+\begin{tikzpicture}[node distance=1.8cm and 1.7cm,>=Latex,thick]
+  \node[draw,rounded corners] (selfplay) {Self-play games};
+  \node[draw,rounded corners,right=of selfplay] (mcts) {MCTS};
+  \node[draw,rounded corners,above=of mcts] (policy) {Policy net};
+  \node[draw,rounded corners,below=of mcts] (value) {Value net};
+  \node[draw,rounded corners,right=of mcts] (dataset) {Replay buffer};
+  \node[draw,rounded corners,right=of dataset] (train) {SGD updates};
+
+  \draw[->] (selfplay) -- (mcts);
+  \draw[->] (policy) -- (mcts);
+  \draw[->] (value) -- (mcts);
+  \draw[->] (mcts) -- (dataset);
+  \draw[->] (dataset) -- (train);
+  \draw[->] (train) to[bend left=20] (policy);
+  \draw[->] (train) to[bend right=20] (value);
+\end{tikzpicture}
+% Note: Emphasize policy improvement from MCTS visit counts.
+\end{frame}
+
+\begin{frame}{Diagram: Large-Scale Distributed RL Pipeline}
+\centering
+\begin{tikzpicture}[node distance=1.8cm and 1.5cm,>=Latex,thick]
+  \node[draw,rounded corners] (actors) {Actors / Simulators ($N\gg1$)};
+  \node[draw,rounded corners,right=of actors] (queue) {Trajectory queue};
+  \node[draw,rounded corners,right=of queue] (learners) {Learners (GPU)};
+  \node[draw,rounded corners,below=of learners] (params) {Parameter server};
+  \node[draw,rounded corners,below=of queue] (eval) {Evaluation league};
+
+  \draw[->] (actors) -- node[above] {rollouts} (queue);
+  \draw[->] (queue) -- node[above] {batches} (learners);
+  \draw[->] (learners) -- node[right] {new weights} (params);
+  \draw[->] (params) -| node[pos=0.25,below] {broadcast} (actors);
+  \draw[->] (params) -- (eval);
+  \draw[->] (eval) -- node[below] {opponent sampling} (actors);
+\end{tikzpicture}
+% Note: Connect to OpenAI Five throughput, policy lag, and league training.
+\end{frame}
+
+% =========================
+% STEP 6 — Conclusion slides
+% =========================
+
+\begin{frame}{Engineering Lessons from Modern Deep RL}
+\begin{itemize}
+  \item Self-play generates adaptive curricula without manual labels
+  \item Distributed simulation is essential for data and exploration scale
+  \item Reward shaping and constraints determine learnability
+  \item Scaling models/data improves robustness, not just peak score
+  \item Search + learning hybrids outperform either component alone
+\end{itemize}
+% Note: Mention these as reusable design patterns across domains.
+\end{frame}
+
+\begin{frame}{Open Questions for Stochastic Control Researchers}
+\begin{itemize}
+  \item Continuous-time RL: principled links to HJB and BSDE methods
+  \item Sample efficiency: model-based priors and uncertainty quantification
+  \item Exploration in high dimensions with finite-time guarantees
+  \item Stability and convergence under function approximation
+  \item Unifying optimal control structure with large-scale deep learning
+\end{itemize}
+% Note: End by inviting theory-system co-design collaborations.
+\end{frame}
+
+\end{document}
